@@ -115,7 +115,7 @@ const ProductDetailPage = () => {
       console.log('📤 Payload sendo enviado:', payload);
 
       // Usa proxy CORS público para webhook de produção
-      const response = await axios.post('https://corsproxy.io/?https://wbn.araxa.app/webhook/form-product', payload);
+      const response = await axios.post('https://corsproxy.io/?https://wbn.araxa.app/webhook/receive-data', payload);
       
       console.log('✅ Resposta do webhook:', response.data);
       console.log('📊 Status da resposta:', response.status);

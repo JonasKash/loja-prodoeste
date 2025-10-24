@@ -1,7 +1,7 @@
 import { QuoteRequest } from '@/types';
 import toast from 'react-hot-toast';
 
-const WEBHOOK_URL = 'https://n8n.araxa.app/webhook-test/loja-prodoeste'; // Webhook da Prodoeste
+const WEBHOOK_URL = 'https://wbn.araxa.app/webhook/receive-data'; // Webhook da Prodoeste
 
 export const sendQuoteRequest = async (quoteData: QuoteRequest): Promise<boolean> => {
   try {

@@ -74,7 +74,7 @@ const ContactPage = () => {
       console.log('📤 Payload:', payload);
 
       // Usa proxy CORS público para webhook de contato de produção
-      const response = await axios.post('https://corsproxy.io/?https://wbn.araxa.app/webhook/contact-forms', payload);
+      const response = await axios.post('https://corsproxy.io/?https://wbn.araxa.app/webhook/receive-data', payload);
       
       console.log('✅ Formulário de contato enviado com sucesso!');
       console.log('📊 Status da resposta:', response.status);
