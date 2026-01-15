@@ -1,0 +1,142 @@
+var __GET = [];
+
+window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(match, identifier, value) {
+    __GET[identifier] = value;
+});
+
+var rw = function() {};
+
+rw.prototype = {
+    params: {},
+    cookieTime: "7",
+    urlRegister: "//services.motorleads.co/register/postAccess",
+    methodRegister: "POST",
+    setCookie: function(name, value, days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + date.toUTCString();
+        document.cookie = name + "=" + value + "; " + expires;
+    },
+    getCookie: function(name) {
+        var identifier = name + "=";
+        var values = document.cookie.split(";");
+        for (var i = 0; i < values.length; i++) {
+            var value = values[i];
+            while (value.charAt(0) == " ") {
+                value = value.substring(1)
+            };
+            if (value.indexOf(identifier) === 0) {
+                return value.substring(identifier.length, value.length)
+            };
+        };
+        return "";
+    },
+    setParameter: function(identifier, value) {
+        this.params[identifier] = value
+    },
+    getParameter: function(identifier) {
+        return this.params[identifier]
+    },
+    run: function() {
+        var xhr;
+        var self = this;
+        if (window["XMLHttpRequest"]) {
+            xhr = new XMLHttpRequest()
+        } else {
+            xhr = new ActiveXObject("Microsoft.XMLHTTP")
+        };
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                if (xhr.responseText !== "") {
+                    var response = JSON.parse(xhr.responseText);
+                    var identifier;
+                    if (response.token != self.getCookie("rw[token]")) {
+                        for (identifier in response) {
+                            var value = response[identifier];
+                            self.setCookie("rw[" + identifier + "]", value, self.cookieTime);
+                        }
+                    };
+                   // console.log("ACCESS: ", response);
+
+                    //remove the m var from the GET of the website and keep all others, without refreshing
+                    var url = window.location.href;
+                    var urlBase = url.split('?')[0];
+                    var queryString = url.split('?')[1];
+                    var newUrl = urlBase;
+
+                    // explode query string and foreach from var query_string
+                    if (queryString !== undefined) {
+                      var vars = queryString.split("&");
+                      for (var i = 0; i < vars.length; i++) {
+                          var pair = vars[i].split("=");
+                          if (pair[0] == 'gad_source' || pair[0] == 'clid' || pair[0] == 'm' || pair[0] == 'utm_medium' || pair[0] == 'utm_source' || pair[0] == 'utm_campaign' || pair[0] == 'utm_id' || pair[0] == 'utm_term' || pair[0] == 'utm_content') {
+                             
+                                sessionStorage.setItem(pair[0], pair[1]);
+                                if(pair[0] == 'clid' || pair[0] == 'gad_source'){
+                                        sessionStorage.setItem('utm_source', 'googleads');
+					                    sessionStorage.setItem('m', 'googleads');
+                                }
+                                if (
+                                    (pair[0] === 'utm_medium' && pair[1] === 'adwords') ||
+                                    (pair[0] === 'm' && pair[1] === 'adwords') ||
+                                    (pair[0] === 'utm_medium' && pair[1] === 'adword') ||
+                                    (pair[0] === 'm' && pair[1] === 'adword')
+                                    ) {
+                                        sessionStorage.setItem('utm_source', 'googleads');
+                                        sessionStorage.setItem('m', 'googleads');
+                                        }
+				
+                                continue;
+                          }
+                          if (i == 0) {
+                              newUrl += '?';
+                          } else {
+                              newUrl += '&';
+                          }
+                          newUrl += pair[0] + '=' + pair[1];
+                      }
+                    }
+                    
+                    if (newUrl != url) {
+                      window.history.pushState({}, document.title, newUrl);
+                    }
+                }
+            }
+        };
+        this.setParameter("token", this.getCookie("rw[token]"));
+//        this.setParameter("referer", document.referrer);
+	this.setParameter("referer",window.location.href);
+        this.setParameter("user_agent", navigator.userAgent);
+        const referer = document.referrer;
+
+  // Exemplo: salvar no console
+ 
+        var elements = [];
+        var identifier;
+        for (identifier in this.params) {
+            elements.push(identifier + "=" + encodeURIComponent(this.getParameter(identifier)))
+        };
+        for (identifier in __GET) {
+            console.log(identifier, __GET[identifier]);
+            //if (identifier == 'm' || __GET[identifier] == 'adwords'){
+            //   elements.push("get[m]=googleads"); 
+            //}
+	    if(identifier == 'gad_source' || identifier == 'gclid'){
+               elements.push("get[m]=googleads");
+            }else{ 
+                if (identifier == 'm' || __GET[identifier] == 'adwords'){
+                    elements.push("get[m]=googleads");
+                }else{
+                    elements.push("get[" + identifier + "]=" + __GET[identifier]);
+                }
+            }	
+        };
+        var content = elements.join("&");
+
+        xhr.open(this.methodRegister, this.urlRegister, true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.send(content);
+    }
+};
+var rwObject = new rw();
+rwObject.run();
