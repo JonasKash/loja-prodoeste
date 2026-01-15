@@ -101,7 +101,7 @@ const ProductDetailPage = () => {
     }
     
     try {
-      const discountPercentage = product.originalPrice 
+      const discountPercentage = product?.originalPrice && product?.price
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
         : 0;
 
