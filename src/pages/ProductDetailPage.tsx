@@ -4,7 +4,6 @@ import { ArrowLeft, ShoppingCart, Truck, Shield, Loader2 } from 'lucide-react';
 import { products } from '@/data/products';
 import { useState } from 'react';
 import axios from 'axios';
-import { getSourceInfo, PAGE_SOURCES } from '@/utils/sourceTracker';
 
 interface FormData {
   name: string;
@@ -102,13 +101,25 @@ const ProductDetailPage = () => {
     }
     
     try {
+      const discountPercentage = product.originalPrice 
+        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+        : 0;
+
       const payload = {
-        ...formData,
+        name: formData.name,
+        company: formData.company,
+        phone: formData.phone,
+        quantity: formData.quantity,
         productName: product?.name,
-        productCode: product?.id,
+        productCategory: product?.category,
+        productBrand: product?.brand,
+        productModel: product?.model,
+        productYear: product?.year,
         productPrice: product?.price,
-        timestamp: new Date().toISOString(),
-        source: getSourceInfo(PAGE_SOURCES.PRODUCT_DETAIL)
+        productOriginalPrice: product?.originalPrice,
+        productDiscount: discountPercentage,
+        productDescription: product?.description,
+        productStock: product?.stock
       };
 
       console.log('🚀 Tentando enviar dados para o webhook via proxy CORS público...');
